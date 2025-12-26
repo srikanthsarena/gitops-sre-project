@@ -1,0 +1,22 @@
+# Windows
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Node
+node_modules/
+
+# Logs
+*.log
