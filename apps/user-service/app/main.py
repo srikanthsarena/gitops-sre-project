@@ -63,3 +63,11 @@ async def readyz():
 @app.get("/metrics")
 async def metrics():
     return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+
+@app.get("/users/{user_id}")
+async def get_user(user_id: int):
+    return {
+        "id": user_id,
+        "name": "Test User"
+    }
