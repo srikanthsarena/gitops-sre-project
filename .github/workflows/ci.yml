@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies (user-service)
+        working-directory: apps/user-service
+        run: |
+          pip install -r requirements.txt
+
+      - name: Install dependencies (order-service)
+        working-directory: apps/order-service
+        run: |
+          pip install -r requirements.txt
+
+      - name: Docker build (user-service)
+        run: docker build ./apps/user-service
+
+      - name: Docker build (order-service)
+        run: docker build ./apps/order-service
