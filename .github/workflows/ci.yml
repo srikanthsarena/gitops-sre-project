@@ -1,3 +1,5 @@
+#This is a GitHub Actions workflow file for Continuous Integration (CI) that builds and tests two services: user-service and order-service.
+
 name: CI
 
 on:
