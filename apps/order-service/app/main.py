@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request, HTTPException
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-USER_SERVICE_URL = "http://localhost:8000"
+USER_SERVICE_URL = "http://user-service:8000"
 
 app = FastAPI(title="order-service")
 
