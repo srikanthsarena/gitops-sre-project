@@ -1,38 +1,30 @@
-#This is a GitHub Actions workflow file for Continuous Integration (CI) that builds and tests two services: user-service and order-service.
-
 name: CI
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
-  build-and-test:
+  docker-build:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service:
+          - user-service
+          - order-service
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Install dependencies (user-service)
-        working-directory: apps/user-service
+      - name: Build Docker image
         run: |
-          pip install -r requirements.txt
-
-      - name: Install dependencies (order-service)
-        working-directory: apps/order-service
-        run: |
-          pip install -r requirements.txt
-
-      - name: Docker build (user-service)
-        run: docker build ./apps/user-service
-
-      - name: Docker build (order-service)
-        run: docker build ./apps/order-service
+          docker build \
+            -t gitops-sre-project/${{ matrix.service }}:${{ github.sha }} \
+            ./apps/${{ matrix.service }}
