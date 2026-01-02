@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: ghcr.io/srikanthsarena/gitops-sre-project/user-service:<IMAGE_SHA>
+          image: user-service:latest
           ports:
             - containerPort: 8000
