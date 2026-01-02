@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+prometheus-client
+# Additional dependencies can be added below
+# git user-service/apps/user-service@v1.0.0
