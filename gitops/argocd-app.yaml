@@ -5,19 +5,21 @@ metadata:
   namespace: argocd
 spec:
   project: default
+
   source:
     repoURL: https://github.com/srikanthsarena/gitops-sre-project
     targetRevision: main
     path: gitops/apps
     directory:
       recurse: true
+
   destination:
     server: https://kubernetes.default.svc
     namespace: gitops-apps
-  syncPolicy:
-  automated:
-    prune: true
-    selfHeal: true
-  syncOptions:
-    - CreateNamespace=true
 
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
