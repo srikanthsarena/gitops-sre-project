@@ -12,8 +12,10 @@ spec:
       labels:
         app: user-service
     spec:
+      imagePullSecrets:
+        - name: ghcr-pull-secret      
       containers:
         - name: user-service
-          image: user-service:latest
+          image: ghcr.io/srikanthsarena/gitops-sre-project/user-service:a408bf4189eebc1b805cc0cffcb91d065ad9fc6c
           ports:
             - containerPort: 8000
