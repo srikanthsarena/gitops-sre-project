@@ -12,8 +12,10 @@ spec:
       labels:
         app: order-service
     spec:
+      imagePullSecrets:
+        - name: ghcr-pull-secret
       containers:
         - name: order-service
-          image: ghcr.io/srikanthsarena/gitops-sre-project/order-service:<IMAGE_SHA>
+          image: ghcr.io/srikanthsarena/gitops-sre-project/order-service:c5addb6dcbdf3324ed33cb7a5e825e0ad07aacd5
           ports:
             - containerPort: 8001
