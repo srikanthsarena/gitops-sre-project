@@ -20,4 +20,22 @@ A production-style DevOps/SRE reference platform built with low-cost infrastruct
 - runbooks/        → operational playbooks
 - docs/adr/        → architecture decision records
 
-This repository is built incrementally over 40 days to reflect senior-level DevOps/SRE practices.
+This repository is built incrementally over few days to reflect senior-level DevOps/SRE practices.
+
+
+# Release Checklist
+
+Before creating a release:
+
+- [ ] CI pipeline is green on `main`
+- [ ] Container images are published to GHCR
+- [ ] Argo CD application is `Synced` and `Healthy`
+- [ ] CHANGELOG updated
+- [ ] Version number chosen (SemVer)
+- [ ] Git tag created
+- [ ] GitHub Release published
+
+## Rollback strategy
+
+- Revert Argo CD to a previous Git tag
+- Images are immutable and reproducible
