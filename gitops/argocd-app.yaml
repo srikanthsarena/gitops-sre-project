@@ -10,7 +10,8 @@ spec:
     repoURL: https://github.com/srikanthsarena/gitops-sre-project
     targetRevision: main
     path: gitops/apps
-    kustomize: {}
+    kustomize: {}   # 👈 THIS IS THE MISSING PIECE
+
   destination:
     server: https://kubernetes.default.svc
     namespace: gitops-apps

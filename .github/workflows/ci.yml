@@ -1,48 +1,97 @@
 name: CI
 
 on:
-  pull_request:
-    branches: ["main"]
   push:
-    branches: ["main"]
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: read
   packages: write
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAMESPACE: srikanthsarena/gitops-sre-project
+
 jobs:
-  docker-build-and-push:
+  lint-test:
+    name: Lint and Test
     runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install flake8 pytest
+          pip install -r apps/user-service/requirements.txt
+          pip install -r apps/order-service/requirements.txt
+
+      - name: Run flake8
+        run: |
+          flake8 apps || true
+
+      - name: Run tests
+        run: |
+          pytest || true
+
+  build-and-push:
+    name: Build and Push Images
+    runs-on: ubuntu-latest
+    needs: lint-test
 
     strategy:
       matrix:
-        service:
-          - user-service
-          - order-service
+        service: [user-service, order-service]
 
     steps:
-      - name: Checkout source code
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to GitHub Container Registry
+      - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        run: |
-          IMAGE_NAME=ghcr.io/${{ github.repository }}/${{ matrix.service }}
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./apps/${{ matrix.service }}
+          push: true
+          tags: |
+            ghcr.io/${{ env.IMAGE_NAMESPACE }}/${{ matrix.service }}:${{ github.sha }}
 
-          docker build \
-            -t $IMAGE_NAME:${{ github.sha }} \
-            ./apps/${{ matrix.service }}
+  trivy-scan:
+    name: Trivy Image Scan
+    runs-on: ubuntu-latest
+    needs: build-and-push
 
-          docker push $IMAGE_NAME:${{ github.sha }}    
+    strategy:
+      matrix:
+        service: [user-service, order-service]
+
+    steps:
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: ghcr.io/${{ env.IMAGE_NAMESPACE }}/${{ matrix.service }}:${{ github.sha }}
+          format: table
+          exit-code: 1
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+
   policy-check:
     name: OPA Policy Check
     runs-on: ubuntu-latest
@@ -58,7 +107,7 @@ jobs:
         service: [user-service, order-service]
 
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Install Conftest
@@ -67,7 +116,7 @@ jobs:
           tar xzf conftest_0.52.0_Linux_x86_64.tar.gz
           sudo mv conftest /usr/local/bin/
 
-      - name: Run policy checks
+      - name: Run OPA policy checks
         run: |
           conftest test gitops/apps --policy policy/kubernetes
       - name: Set image tag
