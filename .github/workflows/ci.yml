@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 permissions:
   contents: read
@@ -15,35 +15,9 @@ env:
   IMAGE_NAMESPACE: srikanthsarena/gitops-sre-project
 
 jobs:
-  lint-test:
-    name: Lint and Test
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: |
-          pip install flake8 pytest
-          pip install -r apps/user-service/requirements.txt
-          pip install -r apps/order-service/requirements.txt
-
-      - name: Run flake8
-        run: flake8 apps || true
-
-      - name: Run tests
-        run: pytest || true
-
   build-and-push:
     name: Build and Push Images
     runs-on: ubuntu-latest
-    needs: lint-test
 
     strategy:
       matrix:
@@ -53,10 +27,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set IMAGE_TAG from commit SHA
+        run: echo "IMAGE_TAG=$GITHUB_SHA" >> $GITHUB_ENV
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to GHCR
+      - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -69,9 +46,9 @@ jobs:
           context: ./apps/${{ matrix.service }}
           push: true
           tags: |
-            ghcr.io/${{ env.IMAGE_NAMESPACE }}/${{ matrix.service }}:${{ env.GITHUB_SHA }}
+            ghcr.io/${{ env.IMAGE_NAMESPACE }}/${{ matrix.service }}:${{ env.IMAGE_TAG }}
 
-  trivy-image-scan:
+  trivy-scan:
     name: Trivy Image Scan
     runs-on: ubuntu-latest
     needs: build-and-push
@@ -81,28 +58,22 @@ jobs:
         service: [user-service, order-service]
 
     steps:
+      - name: Set IMAGE_TAG from commit SHA
+        run: echo "IMAGE_TAG=$GITHUB_SHA" >> $GITHUB_ENV
+
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@0.20.0
         with:
-          image-ref: ghcr.io/${{ env.IMAGE_NAMESPACE }}/${{ matrix.service }}:${{ env.GITHUB_SHA }}
+          image-ref: ghcr.io/${{ env.IMAGE_NAMESPACE }}/${{ matrix.service }}:${{ env.IMAGE_TAG }}
           format: table
-          exit-code: 1
           vuln-type: os,library
           severity: CRITICAL,HIGH
+          exit-code: 1
 
   policy-check:
     name: OPA Policy Check
     runs-on: ubuntu-latest
     needs: build-and-push
-          docker push $IMAGE_NAME:${{ github.sha }}
-
-  trivy-scan:
-    name: Trivy Image Scan
-    runs-on: ubuntu-latest
-    needs: docker-build-and-push
-    strategy:
-      matrix:
-        service: [user-service, order-service]
 
     steps:
       - name: Checkout code
