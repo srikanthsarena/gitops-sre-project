@@ -39,8 +39,10 @@ async def metrics_middleware(request: Request, call_next):
 
 @app.get("/metrics")
 def metrics():
-    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
-
+    return Response(
+        content=generate_latest(),
+        media_type=CONTENT_TYPE_LATEST
+    )
 
 @app.get("/orders/{order_id}")
 def get_order(order_id: int):
