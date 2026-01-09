@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: gitops-apps
+data:
+  alertmanager.yml: |
+    global:
+      resolve_timeout: 5m
+
+    route:
+      receiver: "default-receiver"
+      group_by: ["alertname"]
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+
+      routes:
+        - matchers:
+            - severity="critical"
+          receiver: "critical-receiver"
+
+    receivers:
+      - name: "default-receiver"
+        webhook_configs:
+          - url: "http://localhost:9099/"
+
+      - name: "critical-receiver"
+        webhook_configs:
+          - url: "http://localhost:9099/"

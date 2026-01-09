@@ -8,6 +8,12 @@ data:
     global:
       scrape_interval: 15s
 
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets:
+                - alertmanager.gitops-apps.svc.cluster.local:9093
+
     rule_files:
       - /etc/prometheus/alerts.rules.yml
 
@@ -15,12 +21,14 @@ data:
       - job_name: "user-service"
         metrics_path: /metrics
         static_configs:
-          - targets: ["user-service.gitops-apps.svc.cluster.local:8000"]
+          - targets:
+              - user-service.gitops-apps.svc.cluster.local:8000
 
       - job_name: "order-service"
         metrics_path: /metrics
         static_configs:
-          - targets: ["order-service.gitops-apps.svc.cluster.local:8001"]
+          - targets:
+              - order-service.gitops-apps.svc.cluster.local:8001
 
   alerts.rules.yml: |
     groups:
@@ -34,17 +42,3 @@ data:
             annotations:
               summary: "Service is down"
               description: "Service has been unreachable for more than 1 minute"
-
-          - alert: HighErrorRate
-            expr: |
-              (
-                sum(rate(http_requests_total{status=~"5.."}[1m]))
-                /
-                sum(rate(http_requests_total[1m]))
-              ) > 0.05
-            for: 2m
-            labels:
-              severity: warning
-            annotations:
-              summary: "High error rate"
-              description: "More than 5% of requests are failing"
