@@ -18,4 +18,4 @@ spec:
         - name: order-service
           image: ghcr.io/srikanthsarena/gitops-sre-project/order-service:2afca5639ece03ce0081690d5183757bb0109342
           ports:
-            - containerPort: 8001
+            - containerPort: 8000
