@@ -1,4 +1,0 @@
-resources:
-  - user-service
-  - order-service
-  - prometheus
