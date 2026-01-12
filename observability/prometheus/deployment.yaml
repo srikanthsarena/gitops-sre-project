@@ -12,10 +12,12 @@ spec:
     metadata:
       labels:
         app: prometheus
+      annotations:
+        day-19-force-rollout: "true"
     spec:
       containers:
         - name: prometheus
-          image: prom/prometheus:latest
+          image: prom/prometheus:v2.52.0
           args:
             - --config.file=/etc/prometheus/prometheus.yml
             - --storage.tsdb.path=/prometheus
@@ -25,6 +27,18 @@ spec:
           volumeMounts:
             - name: prometheus-config
               mountPath: /etc/prometheus
+              readOnly: true
+
+        - name: configmap-reload
+          image: jimmidyson/configmap-reload:v0.12.0
+          args:
+            - --volume-dir=/etc/prometheus
+            - --webhook-url=http://127.0.0.1:9090/-/reload
+          volumeMounts:
+            - name: prometheus-config
+              mountPath: /etc/prometheus
+              readOnly: true
+
       volumes:
         - name: prometheus-config
           configMap:
