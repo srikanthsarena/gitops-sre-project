@@ -32,8 +32,8 @@ spec:
         - name: configmap-reload
           image: quay.io/prometheus-operator/prometheus-config-reloader:v0.75.1
           args:
-            - --volume-dir=/etc/prometheus
-            - --webhook-url=http://127.0.0.1:9090/-/reload
+            - --watched-dir=/etc/prometheus
+            - --reload-url=http://127.0.0.1:9090/-/reload
           volumeMounts:
             - name: prometheus-config
               mountPath: /etc/prometheus
