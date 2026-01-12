@@ -4,5 +4,4 @@ kind: Kustomization
 resources:
   - user-service
   - order-service
-  - ingress
   - prometheus
