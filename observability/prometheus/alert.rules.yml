@@ -9,7 +9,6 @@ groups:
         annotations:
           summary: "Service is down"
           description: "Service has been unreachable for more than 1 minute"
-
       - alert: HighErrorRate
         expr: |
           (
@@ -23,3 +22,14 @@ groups:
         annotations:
           summary: "High error rate"
           description: "More than 5% of requests are failing"
+  - name: prometheus-self
+    rules:
+      - alert: PrometheusConfigReloadFailed
+        expr: prometheus_config_last_reload_successful == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Prometheus config reload failed"
+          description: "Prometheus failed to reload its configuration for more than 5 minutes."
+
