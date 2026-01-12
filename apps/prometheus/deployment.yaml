@@ -13,7 +13,7 @@ spec:
       labels:
         app: prometheus
       annotations:
-        day-19-force-rollout: "sidecar"
+        day-19-force-rollout: "sidecar-v1"
     spec:
       containers:
         - name: prometheus
