@@ -1,4 +1,4 @@
 kustomize:
   images:
-  - ghcr.io/srikanthsarena/gitops-sre-project/order-service:9f08c1f86c06f8a5550b96de938605624be9128a
-  - ghcr.io/srikanthsarena/gitops-sre-project/user-service:9f08c1f86c06f8a5550b96de938605624be9128a
+  - ghcr.io/srikanthsarena/gitops-sre-project/order-service:754284a5a92bc2eca0d9abfc042b7327ff1a57eb
+  - ghcr.io/srikanthsarena/gitops-sre-project/user-service:754284a5a92bc2eca0d9abfc042b7327ff1a57eb
