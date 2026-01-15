@@ -3,3 +3,4 @@ uvicorn
 requests
 tenacity
 prometheus-client
+jaraco.context==6.1.0
