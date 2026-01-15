@@ -5,12 +5,15 @@ on:
     branches: [ main ]
     # 🔒 CRITICAL: only run CI when application code changes
     paths:
-      - apps/**
-      - .github/workflows/**
+      - "apps/**"
+      - "policy/**"
+      - ".github/workflows/**"
   pull_request:
     branches: [ main ]
     paths:
-      - apps/**
+      - "apps/**"
+      - "policy/**"
+      - ".github/workflows/**"
 
 permissions:
   contents: read
