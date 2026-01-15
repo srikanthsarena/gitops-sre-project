@@ -3,8 +3,14 @@ name: CI
 on:
   push:
     branches: [ main ]
+    # 🔒 CRITICAL: only run CI when application code changes
+    paths:
+      - apps/**
+      - .github/workflows/**
   pull_request:
     branches: [ main ]
+    paths:
+      - apps/**
 
 permissions:
   contents: read
@@ -16,6 +22,7 @@ env:
 
 jobs:
   build-and-push:
+    # Extra safety: ignore image updater commits even if paths misfire
     if: github.actor != 'argocd-image-updater'
     name: Build and Push Images
     runs-on: ubuntu-latest
