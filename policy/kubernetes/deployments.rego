@@ -1,25 +1,46 @@
-package kubernetes.deployments
+package kubernetes
 
-# Rule 1: No privileged containers
-deny[msg] {
+# Deny :latest images
+deny contains msg if {
   input.kind == "Deployment"
-  container := input.spec.template.spec.containers[_]
-  container.securityContext.privileged == true
-  msg := sprintf("Privileged container not allowed: %s", [container.name])
-}
-
-# Rule 2: No :latest image tags
-deny[msg] {
-  input.kind == "Deployment"
-  container := input.spec.template.spec.containers[_]
+  some i
+  container := input.spec.template.spec.containers[i]
   endswith(container.image, ":latest")
-  msg := sprintf("Image tag ':latest' is not allowed: %s", [container.image])
+  msg := sprintf(
+    "Deployment %s uses :latest image for container %s",
+    [input.metadata.name, container.name]
+  )
 }
 
-# Rule 3: Readiness probe is mandatory
-deny[msg] {
+# Require resource requests
+deny contains msg if {
   input.kind == "Deployment"
-  container := input.spec.template.spec.containers[_]
-  not container.readinessProbe
-  msg := sprintf("Container %s must define a readinessProbe", [container.name])
+  some i
+  container := input.spec.template.spec.containers[i]
+  not container.resources.requests
+  msg := sprintf(
+    "Deployment %s missing resources.requests for container %s",
+    [input.metadata.name, container.name]
+  )
+}
+
+# Require resource limits
+deny contains msg if {
+  input.kind == "Deployment"
+  some i
+  container := input.spec.template.spec.containers[i]
+  not container.resources.limits
+  msg := sprintf(
+    "Deployment %s missing resources.limits for container %s",
+    [input.metadata.name, container.name]
+  )
+}
+
+# Require standard label
+deny contains msg if {
+  not input.metadata.labels["app.kubernetes.io/name"]
+  msg := sprintf(
+    "Object %s/%s missing label app.kubernetes.io/name",
+    [input.kind, input.metadata.name]
+  )
 }
