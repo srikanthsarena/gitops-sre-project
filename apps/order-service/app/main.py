@@ -52,3 +52,6 @@ def get_order(order_id: int):
         "price": 100
     }
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
